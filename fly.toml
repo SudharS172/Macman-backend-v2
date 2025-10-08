@@ -1,6 +1,6 @@
 # Fly.io deployment configuration for MacMan Backend v2
 
-app = "macman-backend-v2"
+app = "macman-backend-prod"
 primary_region = "sjc"  # San Jose (change to your preferred region)
 
 [build]
