@@ -47,10 +47,11 @@ export class UpdateController {
     const filePath = path.join(config.uploadDir, update.filename);
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: 'Update file not found',
       });
+      return;
     }
 
     const stat = fs.statSync(filePath);
@@ -69,7 +70,7 @@ export class UpdateController {
    * Record update history
    */
   recordHistory = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { userId, fromVersion, toVersion, status, errorMessage } = req.body;
+    const { userId, toVersion, status, errorMessage } = req.body;
 
     if (status === 'started') {
       // This is a new update attempt - handled in checkForUpdate
@@ -140,7 +141,7 @@ export class UpdateController {
    * GET /api/admin/updates/stats
    * Get update statistics (admin only)
    */
-  getStatistics = asyncHandler(async (req: AuthRequest, res: Response) => {
+  getStatistics = asyncHandler(async (_req: AuthRequest, res: Response) => {
     const stats = await updateService.getStatistics();
 
     return res.json({

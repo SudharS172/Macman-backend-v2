@@ -95,7 +95,7 @@ export class LicenseController {
   deactivateDevice = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { licenseKey, machineId } = req.params;
 
-    const result = await licenseService.deactivateDevice(licenseKey, machineId);
+    await licenseService.deactivateDevice(licenseKey, machineId);
 
     return res.json({
       success: true,
@@ -107,7 +107,7 @@ export class LicenseController {
    * GET /api/admin/licenses/stats
    * Get license statistics (admin only)
    */
-  getStatistics = asyncHandler(async (req: AuthRequest, res: Response) => {
+  getStatistics = asyncHandler(async (_req: AuthRequest, res: Response) => {
     const stats = await licenseService.getStatistics();
 
     return res.json({

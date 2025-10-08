@@ -1,4 +1,4 @@
-import { config, isDevelopment } from '../config/env';
+import { isDevelopment } from '../config/env';
 
 type LogLevel = 'info' | 'warn' | 'error' | 'debug' | 'success';
 

@@ -91,23 +91,23 @@ app.use('/api/licenses', licenseRoutes);
 app.use('/api/v2/updates', updateRoutes);
 
 // Legacy route compatibility (for existing Swift app)
-app.post('/api/validate-key', async (req, res, next) => {
+app.post('/api/validate-key', async (_req, res, next) => {
   // Redirect to new endpoint
-  req.url = '/api/licenses/validate';
-  return licenseRoutes(req, res, next);
+  _req.url = '/api/licenses/validate';
+  return licenseRoutes(_req, res, next);
 });
 
-app.get('/api/v2/check-update', async (req, res, next) => {
+app.get('/api/v2/check-update', async (_req, res, next) => {
   // Redirect to new endpoint
-  req.url = '/api/v2/updates/check';
-  return updateRoutes(req, res, next);
+  _req.url = '/api/v2/updates/check';
+  return updateRoutes(_req, res, next);
 });
 
 // Static files for admin dashboard
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Admin dashboard route
-app.get('/admin', (req, res) => {
+app.get('/admin', (_req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin.html'));
 });
 

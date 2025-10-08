@@ -5,7 +5,7 @@ import {
   LicenseResponse,
 } from '../types';
 import { generateLicenseKey, isValidLicenseKeyFormat } from '../utils/licenseKey';
-import { BadRequestError, NotFoundError, ConflictError } from '../utils/errors';
+import { NotFoundError } from '../utils/errors';
 import { logger } from '../utils/logger';
 
 const prisma = new PrismaClient();

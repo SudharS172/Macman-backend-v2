@@ -7,7 +7,7 @@ import { UnauthorizedError, ForbiddenError } from '../utils/errors';
 /**
  * Admin authentication middleware using X-Admin-Secret header
  */
-export function requireAdminSecret(req: AuthRequest, res: Response, next: NextFunction) {
+export function requireAdminSecret(req: AuthRequest, _res: Response, next: NextFunction) {
   try {
     const adminSecret = req.headers['x-admin-secret'];
     
@@ -24,7 +24,7 @@ export function requireAdminSecret(req: AuthRequest, res: Response, next: NextFu
 /**
  * JWT authentication middleware
  */
-export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
+export function requireAuth(req: AuthRequest, _res: Response, next: NextFunction) {
   try {
     const token = extractToken(req);
     
@@ -45,7 +45,7 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
  * Role-based authorization middleware
  */
 export function requireRole(...roles: string[]) {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: AuthRequest, _res: Response, next: NextFunction) => {
     try {
       if (!req.admin) {
         throw new UnauthorizedError('Not authenticated');
@@ -84,7 +84,7 @@ function extractToken(req: AuthRequest): string | null {
 /**
  * Optional authentication - doesn't fail if no token provided
  */
-export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
+export function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction) {
   try {
     const token = extractToken(req);
     

@@ -6,7 +6,7 @@ import { BadRequestError } from '../utils/errors';
  * Validate request body against a Zod schema
  */
 export function validateBody<T extends z.ZodType>(schema: T) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     try {
       const validated = schema.parse(req.body);
       req.body = validated;
@@ -26,7 +26,7 @@ export function validateBody<T extends z.ZodType>(schema: T) {
  * Validate request query parameters against a Zod schema
  */
 export function validateQuery<T extends z.ZodType>(schema: T) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     try {
       const validated = schema.parse(req.query);
       req.query = validated as any;
@@ -46,7 +46,7 @@ export function validateQuery<T extends z.ZodType>(schema: T) {
  * Validate request parameters against a Zod schema
  */
 export function validateParams<T extends z.ZodType>(schema: T) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     try {
       const validated = schema.parse(req.params);
       req.params = validated as any;

@@ -4,7 +4,7 @@ import {
   CheckUpdateDto,
   UpdateResponse,
 } from '../types';
-import { compareVersions, versionToBuildNumber } from '../utils/licenseKey';
+import { versionToBuildNumber } from '../utils/licenseKey';
 import { NotFoundError, BadRequestError } from '../utils/errors';
 import { logger } from '../utils/logger';
 
