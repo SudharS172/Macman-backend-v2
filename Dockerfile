@@ -26,6 +26,9 @@ RUN npm prune --production
 # Production stage
 FROM node:18-alpine
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # Copy built app and dependencies
