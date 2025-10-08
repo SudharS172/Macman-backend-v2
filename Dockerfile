@@ -1,5 +1,5 @@
 # Multi-stage build for MacMan Backend v2
-FROM node:18-alpine AS builder
+FROM node:18-slim AS builder
 
 WORKDIR /app
 
@@ -24,10 +24,10 @@ RUN npm run build
 RUN npm prune --production
 
 # Production stage
-FROM node:18-alpine
+FROM node:18-slim
 
-# Install OpenSSL for Prisma
-RUN apk add --no-cache openssl
+# Install OpenSSL for Prisma (Debian-based)
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
