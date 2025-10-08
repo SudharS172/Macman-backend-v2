@@ -1,0 +1,161 @@
+// Prisma schema for MacMan Backend v2
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// License Keys
+model License {
+  id            String   @id @default(uuid())
+  licenseKey    String   @unique @map("license_key")
+  email         String?
+  machineId     String?  @map("machine_id")
+  plan          String   @default("Individual") // "Individual", "2 Devices", "5 Devices", "Enterprise"
+  maxDevices    Int      @default(1) @map("max_devices")
+  deviceCount   Int      @default(0) @map("device_count")
+  isActive      Boolean  @default(true) @map("is_active")
+  activatedAt   DateTime? @map("activated_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  expiresAt     DateTime? @map("expires_at") // For future subscription support
+  
+  // Relations
+  activations   LicenseActivation[]
+  payments      Payment[]
+  
+  @@map("licenses")
+  @@index([licenseKey])
+  @@index([email])
+  @@index([machineId])
+}
+
+// License Activations (track which devices are using the license)
+model LicenseActivation {
+  id            String   @id @default(uuid())
+  licenseId     String   @map("license_id")
+  machineId     String   @map("machine_id")
+  deviceName    String?  @map("device_name")
+  osVersion     String?  @map("os_version")
+  appVersion    String?  @map("app_version")
+  isActive      Boolean  @default(true) @map("is_active")
+  lastSeenAt    DateTime @default(now()) @map("last_seen_at")
+  activatedAt   DateTime @default(now()) @map("activated_at")
+  deactivatedAt DateTime? @map("deactivated_at")
+  
+  // Relations
+  license       License  @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  
+  @@map("license_activations")
+  @@unique([licenseId, machineId])
+  @@index([machineId])
+  @@index([licenseId])
+}
+
+// Payments
+model Payment {
+  id            String   @id @default(uuid())
+  licenseId     String?  @map("license_id")
+  email         String
+  amount        Float
+  currency      String   @default("USD")
+  provider      String   @default("DodoPayments") // "DodoPayments", "Stripe", etc.
+  transactionId String   @unique @map("transaction_id")
+  plan          String   // "Individual", "2 Devices", etc.
+  status        String   @default("completed") // "completed", "pending", "refunded"
+  metadata      Json?    // Store additional payment data
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  license       License? @relation(fields: [licenseId], references: [id])
+  
+  @@map("payments")
+  @@index([email])
+  @@index([transactionId])
+}
+
+// App Updates
+model Update {
+  id            String   @id @default(uuid())
+  version       String   @unique
+  buildNumber   Int      @map("build_number")
+  releaseType   String   @default("normal") @map("release_type") // "normal", "forced", "beta"
+  filename      String
+  fileSize      BigInt   @map("file_size")
+  checksum      String   // SHA256 checksum
+  downloadUrl   String?  @map("download_url")
+  releaseNotes  String   @default("") @map("release_notes")
+  forceUpdate   Boolean  @default(false) @map("force_update")
+  isActive      Boolean  @default(true) @map("is_active")
+  downloadCount Int      @default(0) @map("download_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  publishedAt   DateTime @default(now()) @map("published_at")
+  
+  // Relations
+  history       UpdateHistory[]
+  
+  @@map("updates")
+  @@index([version])
+  @@index([buildNumber])
+  @@index([isActive])
+}
+
+// Update History (track who updated and when)
+model UpdateHistory {
+  id            String   @id @default(uuid())
+  updateId      String   @map("update_id")
+  userId        String   @map("user_id") // machineId or deviceId
+  fromVersion   String   @map("from_version")
+  toVersion     String   @map("to_version")
+  updateType    String   @map("update_type") // "manual", "automatic", "forced"
+  status        String   @default("started") // "started", "completed", "failed"
+  errorMessage  String?  @map("error_message")
+  platform      String   @default("darwin")
+  appVersion    String?  @map("app_version")
+  createdAt     DateTime @default(now()) @map("created_at")
+  completedAt   DateTime? @map("completed_at")
+  
+  // Relations
+  update        Update   @relation(fields: [updateId], references: [id], onDelete: Cascade)
+  
+  @@map("update_history")
+  @@index([userId])
+  @@index([updateId])
+  @@index([status])
+}
+
+// Admin Users (for dashboard access)
+model Admin {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  name          String
+  role          String   @default("admin") // "admin", "super_admin"
+  isActive      Boolean  @default(true) @map("is_active")
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  @@map("admins")
+}
+
+// Analytics & Stats
+model Analytics {
+  id            String   @id @default(uuid())
+  eventType     String   @map("event_type") // "download", "activation", "update_check", etc.
+  userId        String?  @map("user_id")
+  metadata      Json?    // Store event-specific data
+  platform      String?
+  appVersion    String?  @map("app_version")
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  @@map("analytics")
+  @@index([eventType])
+  @@index([userId])
+  @@index([createdAt])
+}
+
