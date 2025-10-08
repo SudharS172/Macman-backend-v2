@@ -6,7 +6,7 @@ dotenv.config();
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('3000'),
-  DATABASE_URL: z.string(),
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   ADMIN_SECRET: z.string().min(16, 'ADMIN_SECRET must be at least 16 characters'),
   ALLOWED_ORIGINS: z.string().default('http://localhost:3000'),
@@ -32,8 +32,20 @@ const parseEnv = () => {
       rateLimitMaxRequests: parseInt(env.RATE_LIMIT_MAX_REQUESTS, 10),
     };
   } catch (error) {
-    console.error('❌ Invalid environment variables:', error);
-    throw new Error('Invalid environment configuration');
+    if (error instanceof z.ZodError) {
+      console.error('❌ Environment variable validation failed:');
+      error.errors.forEach(err => {
+        console.error(`  - ${err.path.join('.')}: ${err.message}`);
+      });
+    } else {
+      console.error('❌ Invalid environment variables:', error);
+    }
+    console.error('\n📝 Required environment variables:');
+    console.error('  - DATABASE_URL (PostgreSQL connection string)');
+    console.error('  - JWT_SECRET (minimum 32 characters)');
+    console.error('  - ADMIN_SECRET (minimum 16 characters)');
+    console.error('  - NODE_ENV (development|production|test)');
+    process.exit(1);
   }
 };
 
